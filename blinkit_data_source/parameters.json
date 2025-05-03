@@ -1,1 +1,38 @@
+[
+  {
+    "rel_url":"LAKKI0708/end-to-end-azure-data-pipeline-cicd/refs/heads/main/blinkit_data_source/blinkit_customers.csv",
+    "folder":"customers",
+    "file":"customers.parquet"
+  },
 
+  {
+    "rel_url":"LAKKI0708/end-to-end-azure-data-pipeline-cicd/refs/heads/main/blinkit_data_source/blinkit_orders.csv",
+    "folder":"orders",
+    "file":"orders.parquet"
+  },
+
+  {
+    "rel_url":"LAKKI0708/end-to-end-azure-data-pipeline-cicd/refs/heads/main/blinkit_data_source/blinkit_order_items.csv",
+    "folder":"orderitems",
+    "file":"orderitems.parquet"
+  },
+
+  {
+    "rel_url":"LAKKI0708/end-to-end-azure-data-pipeline-cicd/refs/heads/main/blinkit_data_source/blinkit_products.csv",
+    "folder":"products",
+    "file":"products.parquet"
+  },
+
+  {
+    "rel_url":"LAKKI0708/end-to-end-azure-data-pipeline-cicd/refs/heads/main/blinkit_data_source/blinkit_delivery_performance.csv",
+    "folder":"deliveryperformance",
+    "file":"deliveryperformance.parquet"
+  },
+
+  {
+    "rel_url":"LAKKI0708/end-to-end-azure-data-pipeline-cicd/refs/heads/main/blinkit_data_source/blinkit_customer_feedback.csv",
+    "folder":"customerfeedback",
+    "file":"customerfeedback.parquet"
+  }
+  
+]
