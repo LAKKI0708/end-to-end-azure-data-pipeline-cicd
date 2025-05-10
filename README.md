@@ -65,13 +65,13 @@ Visualization Layer:
 
 #Repository Contents:
 
-| Folder                 | Contents                                      |
-|------------------------|-----------------------------------------------|
-| `bronze_layer_adf/`    | ARM templates and ADF pipeline descriptions   |
-| `silver_layer`         | PySpark notebooks for transformation,catalog info |
-| `gold_layer_dlt/`      | DLT pipeline notebooks and config             |
-| `power_bi/`            | Power BI config and screenshots               |
-| `data source/`         | Sample CSV or data snippet                    |
+| Folder                   | Contents                                         |
+|------------------------  |--------------------------------------------------|
+| `bronze_layer_adf/`      | ARM templates and ADF pipeline descriptions      |
+| `silver_layer_databricks`| PySpark notebooks for transformation,catalog info|
+| `gold_layer_dlt/`        | DLT pipeline notebooks and config                |
+| `power_bi/`              | Blinkit data visualization screenshot            |
+| `data source/`           | Source data CSV files                            |
 
 ---
 
