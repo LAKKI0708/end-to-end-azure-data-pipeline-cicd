@@ -13,7 +13,7 @@ This project demonstrates an end-to-end data engineering pipeline on Azure using
 
 Architecture:
 
-![Architecture Diagram](architecture-diagram.png)
+![Screenshot 2025-05-10 013039](https://github.com/user-attachments/assets/a2931482-ea94-46d9-8690-041bec2278df)
 
 ---
 
