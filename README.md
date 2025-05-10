@@ -23,8 +23,8 @@ Architecture:
 
 Bronze Layer (Raw Ingestion):
 - Tool: Azure Data Factory (ADF)
-- Description: Ingested raw CSV files from source into the Bronze folder in ADLS in **Parquet format**
-- Deployment: Used Azure DevOps to generate and deploy ARM templates to ADF
+- Description: Created ADF pipelines to ingest raw CSV files from the source into the Bronze folder in Azure Data Lake Storage (ADLS), and converted them to Parquet format.
+- Deployment: Used Azure DevOps to publish the ADF pipeline and generate/deploy ARM templates for automated setup.
 - Output: Raw Parquet files stored in `bronze/` folder of ADLS
 
 Silver Layer (Transformed Data):
