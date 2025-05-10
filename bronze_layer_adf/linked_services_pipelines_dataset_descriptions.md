@@ -4,7 +4,7 @@ This document explains the key components used in the Azure Data Factory (ADF) p
 
 ---
 
-## 🔗 Linked Services
+## Linked Services
 
 1. DataLakeLS
 - Type: AzureBlobFS
