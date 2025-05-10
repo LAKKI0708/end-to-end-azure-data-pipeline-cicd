@@ -46,7 +46,7 @@ Visualization Layer:
 - Tool: Power BI Desktop
 - Description:
   - Connected to Unity Catalog using Power BI configuration file (.pbids)
-  - Created dashboards and visualizations using Gold layer data
+  - Created basic dashboard and visualizations using Gold layer data
 
 ---
 
