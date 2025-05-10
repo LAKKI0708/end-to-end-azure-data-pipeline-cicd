@@ -1,0 +1,301 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "adf-blinkit"
+        },
+        "DataLakeLS_accountKey": {
+            "type": "secureString",
+            "metadata": "Secure string for 'accountKey' of 'DataLakeLS'"
+        },
+        "DataLakeLS_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://blinkitdl.dfs.core.windows.net/"
+        },
+        "GitLS_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/GitToBronze')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Lookup1",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "JsonSource",
+                                "storeSettings": {
+                                    "type": "HttpReadSettings",
+                                    "requestMethod": "GET"
+                                },
+                                "formatSettings": {
+                                    "type": "JsonReadSettings"
+                                }
+                            },
+                            "dataset": {
+                                "referenceName": "paramsgit",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "ForEachCSV",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "Lookup1",
+                                "dependencyConditions": [
+                                    "Completed"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('Lookup1').output.value",
+                                "type": "Expression"
+                            },
+                            "isSequential": true,
+                            "activities": [
+                                {
+                                    "name": "GitToBronzeCopy",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "DelimitedTextSource",
+                                            "storeSettings": {
+                                                "type": "HttpReadSettings",
+                                                "requestMethod": "GET"
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextReadSettings"
+                                            }
+                                        },
+                                        "sink": {
+                                            "type": "ParquetSink",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSWriteSettings"
+                                            },
+                                            "formatSettings": {
+                                                "type": "ParquetWriteSettings"
+                                            }
+                                        },
+                                        "enableStaging": false,
+                                        "enableSkipIncompatibleRow": true,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "rawdatagit",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "rel_url": {
+                                                    "value": "@item().rel_url",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "BronzeDataLake",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "folder": {
+                                                    "value": "@item().folder",
+                                                    "type": "Expression"
+                                                },
+                                                "file": {
+                                                    "value": "@item().file",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {}
+                },
+                "annotations": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/paramsgit')]",
+                "[concat(variables('factoryId'), '/datasets/rawdatagit')]",
+                "[concat(variables('factoryId'), '/datasets/BronzeDataLake')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/BronzeDataLake')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "DataLakeLS",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "folder": {
+                        "type": "string"
+                    },
+                    "file": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "Parquet",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().file",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().folder",
+                            "type": "Expression"
+                        },
+                        "fileSystem": "bronze"
+                    },
+                    "compressionCodec": "snappy"
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/DataLakeLS')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/paramsgit')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "GitLS",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "Json",
+                "typeProperties": {
+                    "location": {
+                        "type": "HttpServerLocation",
+                        "relativeUrl": "LAKKI0708/end-to-end-azure-data-pipeline-cicd/refs/heads/main/blinkit_data_source/parameters.json"
+                    }
+                },
+                "schema": {}
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/GitLS')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/rawdatagit')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "GitLS",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "rel_url": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "HttpServerLocation",
+                        "relativeUrl": {
+                            "value": "@dataset().rel_url",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/GitLS')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DataLakeLS')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('DataLakeLS_properties_typeProperties_url')]",
+                    "accountKey": {
+                        "type": "SecureString",
+                        "value": "[parameters('DataLakeLS_accountKey')]"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/GitLS')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "HttpServer",
+                "typeProperties": {
+                    "url": "[parameters('GitLS_properties_typeProperties_url')]",
+                    "enableServerCertificateValidation": true,
+                    "authenticationType": "Anonymous"
+                }
+            },
+            "dependsOn": []
+        }
+    ]
+}
