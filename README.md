@@ -11,7 +11,7 @@ This project demonstrates an end-to-end data engineering pipeline on Azure using
 - Power BI
 ---
 
-Architecture:
+#Architecture Diagram:
 
 <p >
   <img src="https://github.com/user-attachments/assets/0186f171-67da-435d-a3cd-95d39fbf1eef" width="80%">
